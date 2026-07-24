@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "dev": "npx -y http-server -p 3000 -o",
-    "build": "echo 'Static build completed successfully'"
+    "build": "mkdir -p public && cp index.html index.css app.js mockData.js public/"
   },
   "keywords": [
     "credit-scoring",
