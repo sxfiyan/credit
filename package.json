@@ -1,0 +1,18 @@
+{
+  "name": "corpscore-ai",
+  "version": "1.0.0",
+  "description": "Automated Corporate Credit Scoring & Loan Default Predictive Engine",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y http-server -p 3000 -o"
+  },
+  "keywords": [
+    "credit-scoring",
+    "altman-z-score",
+    "merton-model",
+    "finance",
+    "predictive-engine"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

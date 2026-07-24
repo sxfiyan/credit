@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" color-scheme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CorpScore AI - Automated Corporate Credit Scoring, Altman Z-Score, Merton Default Probability models, and macroeconomic stress-testing simulator.">
+  <title>CorpScore AI | Automated Corporate Credit Scoring & Loan Default Predictive Engine</title>
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Inline Script to prevent theme flashing (FOUC) -->
+  <meta name="color-scheme" content="light dark">
+  <script>
+    {
+      const colorScheme = localStorage.getItem("color-scheme");
+      if (colorScheme) {
+        document.querySelector('meta[name="color-scheme"]').content = colorScheme;
+        document.documentElement.setAttribute("color-scheme", colorScheme);
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Toast Notification Stack -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <a href="#" class="logo" id="logo" aria-label="CorpScore AI Home">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M12 8v8"/>
+          <path d="M9 11h6"/>
+        </svg>
+        <span>CorpScore <span class="text-gradient">AI</span></span>
+      </a>
+      
+      <div class="nav-actions">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Color Theme">
+          <!-- Moon Icon (shows in light mode to switch to dark) -->
+          <svg class="icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <!-- Sun Icon (shows in dark mode to switch to light) -->
+          <svg class="icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Print-Only Header Logo & Layout -->
+  <div class="print-only-header">
+    <h1>CORPSCORE AI - CREDIT SCORING & RISKS MEMO</h1>
+    <p>Confidential Credit Analysis Report • Generated on <span id="print-date"></span></p>
+    <p>Target Company: <strong id="print-comp-name"></strong></p>
+  </div>
+
+  <main class="main-container">
+    
+    <!-- Tab Controls Navigation -->
+    <nav class="tabs-navigation" aria-label="Main Navigation">
+      <button class="tab-btn active" data-target="section-dashboard">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>
+        Portfolio Dashboard
+      </button>
+      <button class="tab-btn" data-target="section-assess">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        New Assessment
+      </button>
+      <button class="tab-btn" data-target="section-results">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Risk Analysis Details
+      </button>
+      <button class="tab-btn" data-target="section-stress">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Stress Testing
+      </button>
+    </nav>
+
+    <!-- SECTION 1: PORTFOLIO DASHBOARD -->
+    <section id="section-dashboard" class="app-section active">
+      <div class="portfolio-overview">
+        <div class="stat-card glass-card">
+          <div class="stat-icon primary" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Portfolio Exposure</span>
+            <span class="stat-value" id="stat-total-loans">$0</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon cyan" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Average CorpScore</span>
+            <span class="stat-value" id="stat-avg-score">0</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon warning" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Portfolio Default Probability</span>
+            <span class="stat-value" id="stat-avg-pd">0.00%</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon danger" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Distress/Default Rate</span>
+            <span class="stat-value" id="stat-default-rate">0.00%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: var(--space-8); margin-bottom: var(--space-8); align-items: start;">
+        <div class="glass-card">
+          <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-4);">Corporate Portfolios Listing</h2>
+          
+          <div class="portfolio-controls">
+            <div class="search-wrapper">
+              <input type="text" id="search-company" class="search-input" placeholder="Search company assessment..." aria-label="Search company name">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            
+            <div class="filter-group">
+              <select id="filter-sector" class="select-input" aria-label="Filter by Sector">
+                <option value="all">All Sectors</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="service">Service/Non-Mfg</option>
+              </select>
+              <select id="filter-rating" class="select-input" aria-label="Filter by Rating Class">
+                <option value="all">All Ratings</option>
+                <option value="investment">Investment Grade (AAA-BBB)</option>
+                <option value="speculative">Speculative Grade (BB-B)</option>
+                <option value="distress">Distress / Default (CCC-D)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="portfolio-table-container">
+            <table class="portfolio-table">
+              <thead>
+                <tr>
+                  <th scope="col">Company Name</th>
+                  <th scope="col">Sector</th>
+                  <th scope="col">Altman Z-Score</th>
+                  <th scope="col">Blended Default Prob.</th>
+                  <th scope="col">Credit Rating</th>
+                  <th scope="col">Loan Decision</th>
+                  <th scope="col" style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="portfolio-table-body">
+                <!-- Javascript populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="glass-card chart-card">
+          <h3 style="font-size: var(--text-base); margin-bottom: var(--space-4);">Credit Quality Risk Distribution</h3>
+          <div class="chart-wrapper">
+            <canvas id="chart-portfolio-dist"></canvas>
+          </div>
+        </div>
+        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h3 style="font-size: var(--text-base); margin-bottom: var(--space-4);">Scoring Engine Operations</h3>
+            <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+              This scoring console uses a blended combination of empirical models to estimate credit spreads and default likelihood. Adjusting stress parameters permits scenario planning for severe macroeconomic downturns.
+            </p>
+            <ul style="color: var(--color-text-secondary); font-size: var(--text-sm); margin-left: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2);">
+              <li><strong>Altman Z-Score:</strong> Estimates corporate insolvency based on Balance Sheet Liquidity, Leverage, Earnings, and Efficiency metrics.</li>
+              <li><strong>Merton Structural Model:</strong> Approximates Distance-to-Default (D2D) using market asset values and equity volatility metrics via Black-Scholes.</li>
+              <li><strong>Blended PD:</strong> Weighs metrics dynamically for predictive lending decisions.</li>
+            </ul>
+          </div>
+          <button class="btn-primary" onclick="document.querySelector('.tab-btn[data-target=\'section-assess\']').click()" style="margin-top: var(--space-6); align-self: flex-start;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Assess New Company
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: NEW ASSESSMENT FORM -->
+    <section id="section-assess" class="app-section">
+      <div class="assessment-layout">
+        
+        <!-- Sidebar Presets -->
+        <div>
+          <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); font-family: var(--font-heading);">Assessment Presets</h2>
+          <p style="font-size: var(--text-xs); color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+            Select a template below to load financial datasets instantly and evaluate models:
+          </p>
+          <div class="presets-container" id="presets-box">
+            <!-- Populated via Javascript -->
+          </div>
+        </div>
+
+        <!-- Financial Input Form -->
+        <div class="glass-card" id="assessment-form-container">
+          <h2 style="font-size: var(--text-xl); margin-bottom: var(--space-6); font-family: var(--font-heading);">Corporate Credit Analysis Input Sheet</h2>
+          
+          <form id="credit-scoring-form" class="assessment-form" novalidate>
+            
+            <!-- Company Profile -->
+            <div>
+              <h3 class="form-section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Company Profile
+              </h3>
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label for="comp-name">Company Name</label>
+                  <input type="text" id="comp-name" class="form-control" placeholder="e.g. Acme Holdings Ltd" required>
+                </div>
+                <div class="form-group">
+                  <label for="comp-sector">Industry Sector</label>
+                  <select id="comp-sector" class="form-control" required>
+                    <option value="manufacturing">Manufacturing (Altman Z Model)</option>
+                    <option value="service">Service & Retail (Altman Z' Model)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="comp-size">Enterprise Size</label>
+                  <select id="comp-size" class="form-control" required>
+                    <option value="large">Large Enterprise</option>
+                    <option value="medium">Medium Enterprise</option>
+                    <option value="small">Small Enterprise</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-top: var(--space-4);">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="comp-public" checked>
+                  <span>Company is publicly traded (Triggers Market Cap Valuation for Altman & Merton models)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Financial Metrics -->
+            <div>
+              <h3 class="form-section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                Financial Inputs ($ USD)
+              </h3>
+              
+              <div class="form-grid-3" style="margin-bottom: var(--space-4);">
+                <div class="form-group">
+                  <label for="fin-cash">Cash & Cash Equivalents</label>
+                  <input type="number" id="fin-cash" class="form-control" min="0" value="500000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-ca">Total Current Assets</label>
+                  <input type="number" id="fin-ca" class="form-control" min="0" value="1500000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-cl">Total Current Liabilities</label>
+                  <input type="number" id="fin-cl" class="form-control" min="0" value="1000000" required>
+                </div>
+              </div>
+
+              <div class="form-grid-3" style="margin-bottom: var(--space-4);">
+                <div class="form-group">
+                  <label for="fin-re">Retained Earnings</label>
+                  <input type="number" id="fin-re" class="form-control" value="800000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-ta">Total Assets</label>
+                  <input type="number" id="fin-ta" class="form-control" min="0" value="5000000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-tl">Total Liabilities</label>
+                  <input type="number" id="fin-tl" class="form-control" min="0" value="3000000" required>
+                </div>
+              </div>
+
+              <div class="form-grid-3" style="margin-bottom: var(--space-4);">
+                <div class="form-group">
+                  <label for="fin-debt">Total Outstanding Debt</label>
+                  <input type="number" id="fin-debt" class="form-control" min="0" value="2000000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-equity">Book Value of Equity</label>
+                  <input type="number" id="fin-equity" class="form-control" min="0" value="2000000" required>
+                </div>
+                <div id="market-cap-group" class="form-group">
+                  <label for="fin-market">Market Capitalization</label>
+                  <input type="number" id="fin-market" class="form-control" min="0" value="4000000" required>
+                </div>
+              </div>
+
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label for="fin-sales">Annual Sales / Revenue</label>
+                  <input type="number" id="fin-sales" class="form-control" min="0" value="6000000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-ebit">Earnings before Interest & Tax (EBIT)</label>
+                  <input type="number" id="fin-ebit" class="form-control" value="750000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-interest">Annual Interest Expense</label>
+                  <input type="number" id="fin-interest" class="form-control" min="0" value="120000" required>
+                </div>
+              </div>
+
+              <div class="form-grid-2" style="margin-top: var(--space-4);">
+                <div class="form-group">
+                  <label for="fin-net">Net Income</label>
+                  <input type="number" id="fin-net" class="form-control" value="500000" required>
+                </div>
+                <div class="form-group">
+                  <label for="fin-vol">
+                    Asset Volatility (%)
+                    <span class="help-text">Annualized, standard for Merton (10%-50%)</span>
+                  </label>
+                  <input type="number" id="fin-vol" class="form-control" min="5" max="80" value="20" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loan Request Details -->
+            <div>
+              <h3 class="form-section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Proposed Loan Request
+              </h3>
+              <div class="form-grid-2" style="margin-bottom: var(--space-4);">
+                <div class="form-group">
+                  <label for="loan-amount">Requested Loan Amount</label>
+                  <input type="number" id="loan-amount" class="form-control" min="1000" value="1000000" required>
+                </div>
+                <div class="form-group">
+                  <label for="loan-term">Loan Term (Years)</label>
+                  <input type="number" id="loan-term" class="form-control" min="1" max="25" value="5" required>
+                </div>
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="loan-collateral">Pledged Collateral Fair Market Value</label>
+                  <input type="number" id="loan-collateral" class="form-control" min="0" value="1500000" required>
+                </div>
+                <div class="form-group">
+                  <label for="loan-collateral-type">Collateral Type</label>
+                  <select id="loan-collateral-type" class="form-control">
+                    <option value="Real Estate">Commercial Real Estate</option>
+                    <option value="Equipment">Heavy Machinery & Fleet Equipment</option>
+                    <option value="Inventory">Inventory / Accounts Receivable</option>
+                    <option value="Unsecured">Unsecured / Corporate Guarantee</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary" style="padding: var(--space-4) var(--space-8); align-self: flex-start;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Generate Credit Scoring Models & Report
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: RISK ANALYSIS DETAILS -->
+    <section id="section-results" class="app-section">
+      <div class="results-header-summary">
+        <!-- Text details -->
+        <div style="flex: 2; display: flex; flex-direction: column; justify-content: center;">
+          <h2 id="res-comp-name" style="font-size: var(--text-3xl); font-family: var(--font-heading); margin-bottom: var(--space-2);">No Company Assessed</h2>
+          <p id="res-meta" style="color: var(--color-text-secondary); text-transform: uppercase; font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.05em;"></p>
+        </div>
+
+        <!-- Radial Blended Grade Badge -->
+        <div class="score-badge-large glass-card" id="res-rating-box">
+          <span class="rating-label">Credit Rating</span>
+          <span class="large-rating" id="res-large-rating">-</span>
+          <span class="rating-label" id="res-score-val">Score: -</span>
+          <span class="large-probability" id="res-pd-val">-%</span>
+          <span class="prob-label">Blended Prob. of Default</span>
+        </div>
+      </div>
+
+      <!-- Models breakdown grid -->
+      <div class="models-grid">
+        <!-- Z-score -->
+        <div class="glass-card" id="model-zscore">
+          <div class="model-title">
+            <span>Altman Z-Score</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <div class="model-score-display">-</div>
+          <div class="model-interpretation">Pending Assessment</div>
+          <div class="model-formula">Z = 1.2*X1 + 1.4*X2 + 3.3*X3...</div>
+        </div>
+
+        <!-- Merton model -->
+        <div class="glass-card" id="model-merton">
+          <div class="model-title">
+            <span>Merton Structural Model</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div class="model-score-display">-%</div>
+          <div class="model-interpretation">Pending Assessment</div>
+          <div class="model-formula">Black-Scholes default probability</div>
+        </div>
+
+        <!-- Weighted index score -->
+        <div class="glass-card" id="model-weighted">
+          <div class="model-title">
+            <span>Weighted Ratio Index</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          </div>
+          <div class="model-score-display">-</div>
+          <div class="model-interpretation">Pending Assessment</div>
+          <div class="model-formula">Weighted rating aggregate</div>
+        </div>
+      </div>
+
+      <!-- Ratio Dashboard + charts -->
+      <div class="results-dashboard-grid">
+        <div class="glass-card">
+          <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-4);">Corporate Ratios Dashboard</h3>
+          <div class="ratios-grid" id="res-ratios-grid">
+            <!-- Loaded via javascript -->
+          </div>
+        </div>
+
+        <div class="glass-card chart-card">
+          <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-4);">Radar Ratios Comparison</h3>
+          <div class="chart-wrapper">
+            <canvas id="chart-radar"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-dashboard-grid" style="align-items: stretch;">
+        <div class="glass-card chart-card">
+          <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-4);">Blended Default Probability Gauge</h3>
+          <div class="chart-wrapper" style="flex-direction: column;">
+            <div style="width: 100%; height: 200px; position: relative;">
+              <canvas id="chart-gauge"></canvas>
+              <div id="gauge-value" style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 2.2rem; font-weight: 800; font-family: var(--font-heading);">0.00%</div>
+            </div>
+            <p style="text-align: center; color: var(--color-text-secondary); font-size: var(--text-xs); margin-top: var(--space-4);">
+              Gauge represents blended 1-year corporate credit default probability computed via Altman, Merton structure, and current liquidity/coverage indicators.
+            </p>
+          </div>
+        </div>
+
+        <!-- Loan Underwriting Decision Card -->
+        <div class="glass-card decision-card approved" id="res-decision-card">
+          <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-6); color: var(--color-primary);">Decision Support Engine</h3>
+          
+          <div class="decision-layout">
+            <div class="decision-badge-container">
+              <div class="decision-icon" id="res-decision-icon">
+                <!-- Icon via JS -->
+              </div>
+              <div>
+                <div class="decision-text" id="res-decision-text">Lending Status</div>
+                <div class="decision-subtext" id="res-decision-reason">Run a calculation to get a loan decision.</div>
+              </div>
+            </div>
+
+            <div class="decision-metrics-grid">
+              <div class="decision-metric">
+                <span class="decision-metric-label">Debt Service Coverage (DSCR)</span>
+                <span class="decision-metric-val" id="res-dec-dscr">-</span>
+              </div>
+              <div class="decision-metric">
+                <span class="decision-metric-label">Loan-to-Value (LTV)</span>
+                <span class="decision-metric-val" id="res-dec-ltv">-%</span>
+              </div>
+              <div class="decision-metric">
+                <span class="decision-metric-label">Suggested Rate (Spread)</span>
+                <span class="decision-metric-val" id="res-dec-rate">-%</span>
+              </div>
+              <div class="decision-metric">
+                <span class="decision-metric-label">Estimated Max Borrowing Capacity</span>
+                <span class="decision-metric-val" id="res-dec-cap">$0</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: var(--space-8); display: flex; gap: var(--space-4);">
+            <button class="btn-primary" onclick="printCreditReport()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              Print Credit Report
+            </button>
+            <button class="action-btn" onclick="document.querySelector('.tab-btn[data-target=\'section-stress\']').click()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Simulation Stress Test
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: STRESS TESTING SIMULATOR -->
+    <section id="section-stress" class="app-section">
+      <div style="margin-bottom: var(--space-8);">
+        <h2 style="font-size: var(--text-2xl); font-family: var(--font-heading); margin-bottom: var(--space-2);">Macro Stress-Testing Simulator</h2>
+        <p style="color: var(--color-text-secondary); font-size: var(--text-sm);">
+          Apply simulated macroeconomic distress factors to the assessed metrics of <strong id="stress-comp-name">-</strong> to observe real-time changes in ratings, debt service coverage, and default risks.
+        </p>
+      </div>
+
+      <div class="stress-layout">
+        
+        <!-- Controls -->
+        <div class="glass-card stress-controls">
+          <h3 style="font-size: var(--text-base); margin-bottom: var(--space-4);">Distress Shock Knobs</h3>
+          
+          <div class="stress-slider-group">
+            <div class="stress-slider-header">
+              <label for="stress-revenue">Revenue Downturn Shock</label>
+              <span class="stress-val" id="val-stress-rev">0%</span>
+            </div>
+            <input type="range" id="stress-revenue" class="stress-slider" min="-50" max="0" value="0">
+            <span style="font-size: var(--text-xs); color: var(--color-text-muted);">Simulates systemic demand contraction. Reduces sales, EBIT, and available working cash flows.</span>
+          </div>
+
+          <div class="stress-slider-group">
+            <div class="stress-slider-header">
+              <label for="stress-rate">Interest Rate Spike</label>
+              <span class="stress-val" id="val-stress-rate">+0%</span>
+            </div>
+            <input type="range" id="stress-rate" class="stress-slider" min="0" max="10" value="0">
+            <span style="font-size: var(--text-xs); color: var(--color-text-muted);">Simulates monetary tightening shocks. Escalates interest rate expenses for variable loans.</span>
+          </div>
+
+          <div class="stress-slider-group">
+            <div class="stress-slider-header">
+              <label for="stress-collateral">Asset/Collateral Valuation Haircut</label>
+              <span class="stress-val" id="val-stress-coll">0%</span>
+            </div>
+            <input type="range" id="stress-collateral" class="stress-slider" min="-50" max="0" value="0">
+            <span style="font-size: var(--text-xs); color: var(--color-text-muted);">Simulates real estate or inventory market price corrections. Raises Loan-to-Value risks.</span>
+          </div>
+        </div>
+
+        <!-- Comparative Output -->
+        <div class="glass-card" style="display: flex; flex-direction: column; gap: var(--space-6);">
+          <h3 style="font-size: var(--text-base);">distress Scenario Comparison</h3>
+          
+          <div class="stress-comparison-card">
+            <div class="stress-metric-row" style="font-weight: 700; border-bottom: 2px solid var(--color-border); padding-bottom: var(--space-2); color: var(--color-primary);">
+              <div>Risk Metric</div>
+              <div>Baseline Scenario</div>
+              <div style="text-align: right;">Stressed Scenario</div>
+            </div>
+            <div id="stress-metric-table">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+
+          <div id="stress-decision-alert" class="model-interpretation">
+            STRESSED DECISION: Pending slider interactions.
+          </div>
+
+          <div class="chart-card" style="min-height: 250px;">
+            <h4 style="font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-4);">1-Year Default Probability Shift</h4>
+            <div class="chart-wrapper">
+              <canvas id="chart-stress-comparison"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--space-6);">
+      <p>© 2026 CorpScore AI Predictive Credit Scoring Engine. Authorized Underwriting Operations Only.</p>
+    </div>
+  </footer>
+
+  <!-- Mock presets data -->
+  <script src="mockData.js"></script>
+  <!-- Main application logic -->
+  <script src="app.js"></script>
+
+</body>
+</html>
